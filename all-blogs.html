@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog List</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- IMPORTANT -->
+    <style>
+        .blog img {
+            width: 200px;
+        }
+        .blog {
+            display: inline-block;
+            margin: 20px;
+            width: 22%;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>All Blogs</h1>
+    <div id="blogList"></div>
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                url: "http://localhost:5000/get-blog",
+                type: "GET",
+                success: function(data) {
+                    data.forEach(blog => {
+                        $("#blogList").append(`
+                            <div class="blog" onclick="window.location.href='blog-detail.html?id=${blog.id}'">
+                                <img src="\ ${blog.image}" alt="${blog.title}">
+                                <h3>${blog.title}</h3>
+                            </div>
+                        `);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
