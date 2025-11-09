@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog Detail</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- IMPORTANT -->
+    <style>
+        .blog-detail img{
+            width: 500px;
+        }
+    </style>
+</head>    
+    <body>
+    <div id="blogDetail" class="blog-detail"></div>
+
+    <script>
+        function getQueryParam(param) {
+            let urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        $(document).ready(function() {
+            let blogid = getQueryParam("id");
+            if (!blogid) {
+                $("#blogDetail").html("<p>Invalid blog ID.</p>");
+                return;
+            }
+
+            $.ajax({
+                url: `http://localhost:5000/get-blog/${blogid}`,
+                type: "GET",
+                success: function(blog) {
+                    $("#blogDetail").html(`
+                        <h2>${blog.title}</h2>
+                        <img src="\ ${blog.image}" alt="${blog.title}">
+                        <p>${blog.content}</p>
+                    `);
+                },
+                error: function() {
+                    $("#blogDetail").html("<p>Blog not found.</p>");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- IMPORTANT -->
+</head>
+<body>
+    <div>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="title">Enter Blog Title</label><br>
+            <input type="text" id="title" name="title" placeholder="Enter title here" required><br><br>
+
+            <label for="image">Select an image </label><br>
+            <input type="file" id="image" name="image" accept="image/*" required><br><br>
+
+            <div class="content-area" style="border:1px solid #ccc; padding:10px; min-height:100px;">
+                <div class="toolbar">
+                    <button type="button" onclick="execCmd('bold')"><b>B</b></button>
+                    <button type="button" onclick="execCmd('italic')"><i>I</i></button>
+                    <button type="button" onclick="execCmd('underline')"><u>U</u></button>
+                    <button type="button" onclick="execCmd('createLink', prompt('Enter the link URL:'))">🔗 Link</button>
+                    <button type="button" onclick="execCmd('unlink')">❌ Unlink</button>
+                </div>
+                <div id="editor" contenteditable="true" style="border:none; padding:10px; min-height: 50px;">
+                    Enter your content here.....
+                </div><br>
+            </div>
+            <br>
+            <button id="submitBtn" type="button">Submit</button>
+        </form>
+    </div>
+
+    <script>
+    // Toolbar formatting function
+    function execCmd(command, value = null) {
+        document.execCommand(command, false, value);
+    }
+
+    // Handle Submit button
+    $('#submitBtn').click(function() {
+        let title = $('#title').val().trim();
+        let content = $('#editor').html().trim();
+        let imageFile = $('#image')[0].files[0]; // get the actual File object
+
+        if (!title || !content || !imageFile) {
+            alert("Please fill all fields before submitting.");
+            return;
+        }
+
+        // Create a FormData object (for multipart/form-data)
+        let formData = new FormData();
+        formData.append("title", title);
+        formData.append("content", content);
+        formData.append("image", imageFile);
+
+        $.ajax({
+            url: 'http://127.0.0.1:5000/add-blog',
+            type: 'POST',
+            data: formData,
+            contentType: false,   // ⚠️ Important — let jQuery set it automatically
+            processData: false,   // ⚠️ Don't process FormData into a string
+            success: function(response) {
+                alert("✅ Blog added successfully!");
+                console.log(response);
+            },
+            // error: function(xhr, status, error) {
+            //     console.error("❌ Error:", error);
+            //     alert("Failed to upload blog. Please check console.");
+            // }
+        });
+    });
+</script>
+
+</body>
+</html>
