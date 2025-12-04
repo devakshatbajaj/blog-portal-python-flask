@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Profile</title>
+</head>
+<body>
+
+<h1>Your Profile</h1>
+
+<div id="profileData"></div>
+
+<script>
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+    window.location.href = "login.html";
+}
+
+document.getElementById("profileData").innerHTML = `
+    <h3>Name: ${user.name}</h3>
+    <h3>Email: ${user.email}</h3>
+`;
+</script>
+
+</body>
+</html>

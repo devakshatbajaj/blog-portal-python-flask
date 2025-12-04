@@ -2,39 +2,155 @@
 <html>
 <head>
     <title>Blog List</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- IMPORTANT -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <style>
+        body {
+            font-family: Arial;
+        }
+
+        /* Header Bar */
+        .top-bar {
+            width: 94%;
+            padding: 12px 20px;
+            background: #222;
+            color: #fff;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-bar button {
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+
+        .login-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .signup-btn {
+            background: #007BFF;
+            color: white;
+        }
+
         .blog img {
             width: 200px;
         }
+
         .blog {
             display: inline-block;
             margin: 20px;
             width: 22%;
+            cursor: pointer;
+        }
+
+        .pagination {
+            margin: 20px 0;
         }
     </style>
 </head>
+
 <body>
 
+    <!-- Top Bar with Login & Signup -->
+    <div class="top-bar">
+    <span id="welcome"></span>
+
+    <button id="login-btn" class="login-btn" onclick="window.location.href='login.html'">Login</button>
+    <button id="signup-btn" class="signup-btn" onclick="window.location.href='signup.html'">Signup</button>
+
+    <button id="profile-btn" class="profile-btn" onclick="window.location.href='profile.html'" style="display:none;">Profile</button>
+    <button id="logout-btn" class="logout-btn" style="background:red; color:white; display:none;">Logout</button>
+</div>
+
+
     <h1>All Blogs</h1>
+
     <div id="blogList"></div>
-    <script>
-        $(document).ready(function() {
-            $.ajax({
-                url: "http://localhost:5000/get-blog",
-                type: "GET",
-                success: function(data) {
-                    data.forEach(blog => {
-                        $("#blogList").append(`
-                            <div class="blog" onclick="window.location.href='blog-detail.html?id=${blog.id}'">
-                                <img src="\ ${blog.image}" alt="${blog.title}">
-                                <h3>${blog.title}</h3>
-                            </div>
-                        `);
-                    });
-                }
-            });
+
+    <div class="pagination">
+        <button id="prev-btn">Previous</button>
+        <span id="page-info"></span>
+        <button id="next-btn">Next</button>
+    </div>
+
+
+<script>
+
+let currentPage = 1;
+const limit = 8;
+
+// ---------------- LOAD BLOGS ------------------
+function loadBlogs(page = 1) {
+    $.get(`http://127.0.0.1:5000/get-blog?page=${page}&limit=${limit}`, function(response) {
+        
+        $("#blogList").html('');
+
+        if (response.data.length === 0) {
+            $("#blogList").html("<p>No blogs available.</p>");
+            return;
+        }
+
+        response.data.forEach(blog => {
+            $("#blogList").append(`
+                <div class="blog" onclick="window.location.href='blog-detail.html?id=${blog.id}'">
+                    <img src="${blog.image}" alt="${blog.title}">
+                    <h3>${blog.title}</h3>
+                </div>
+            `);
         });
-    </script>
+
+        currentPage = response.page;
+        $("#page-info").text(`Page ${currentPage} of ${response.pages}`);
+        $("#prev-btn").prop("disabled", currentPage === 1);
+        $("#next-btn").prop("disabled", currentPage >= response.pages);
+
+    });
+}
+
+$('#prev-btn').click(() => {
+    if (currentPage > 1) loadBlogs(currentPage - 1);
+});
+
+$('#next-btn').click(() => {
+    loadBlogs(currentPage + 1);
+});
+
+$(document).ready(() => {
+    loadBlogs();
+});
+
+// ---------------- SHOW USER STATUS ------------------
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (user) {
+    $("#welcome").text("Welcome, " + user.name);
+    $("#login-btn, #signup-btn").hide();
+    $("#logout-btn, #profile-btn").show();
+} else {
+    $("#welcome").text("");
+    $("#login-btn, #signup-btn").show();
+    $("#logout-btn, #profile-btn").hide();
+}
+
+// ---------------- LOGOUT FUNCTION ------------------
+$("#logout-btn").click(function() {
+    $.post("http://127.0.0.1:8000/logout", {}, function(res) {
+        console.log("Logout API:", res);
+
+        localStorage.removeItem("user");
+        window.location.reload();
+    });
+});
+
+</script>
+
+
 </body>
 </html>

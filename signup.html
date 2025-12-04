@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Signup</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f2f2f2;
+        }
+        .box {
+            width: 350px;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056d2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <h2>Signup</h2>
+
+        <input type="text" id="name" placeholder="Enter Name">
+        <input type="email" id="email" placeholder="Enter Email">
+        <input type="password" id="password" placeholder="Enter Password">
+
+        <button id="signupBtn">Create Account</button>
+
+        <p>Already have an account? <a href="login.html">Login</a></p>
+    </div>
+
+    <script>
+        $("#signupBtn").click(function() {
+            $.ajax({
+                url: "http://127.0.0.1:5000/signup",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    name: $("#name").val(),
+                    email: $("#email").val(),
+                    password: $("#password").val()
+                }),
+                success: function(res) {
+                    alert(res.message);
+                    window.location.href = "login.html";
+                },
+                error: function(err) {
+                    alert("Signup failed");
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

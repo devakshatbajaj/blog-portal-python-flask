@@ -12,6 +12,16 @@
     <body>
     <div id="blogDetail" class="blog-detail"></div>
 
+<!-- Comment Section -->
+<div class="comment-box">
+    <h3>Leave a Comment</h3>
+    <input type="text" id="userName" name="userName" placeholder="Your name" style="width:100%; padding:8px;"><br><br>
+    <textarea id="userComment" name="userComment" placeholder="Write a comment..." style="width:100%; height:80px; padding:8px;"></textarea><br><br>
+    <button id="submitComment">Submit Comment</button>
+</div>
+
+<h3>Comments</h3>
+<div id="commentList" class="comment-list"></div>
     <script>
         function getQueryParam(param) {
             let urlParams = new URLSearchParams(window.location.search);
@@ -39,7 +49,61 @@
                     $("#blogDetail").html("<p>Blog not found.</p>");
                 }
             });
+            function loadComments() {
+            $.ajax({
+                url: `http://localhost:5000/get-comments/${blogid}`,
+                type: "GET",
+                success: function(comments) {
+                    if(comments.length === 0){
+                        $("#commentList").html("<p>No comments yet.</p>");
+                        return;
+                    }
+
+                    let html = "";
+                    comments.forEach(c => {
+                        html += `
+                            <div class="single-comment">
+                                <strong>${c.name}</strong><br>
+                                <p>${c.comment}</p>
+                            </div>
+                        `;
+                    });
+
+                    $("#commentList").html(html);
+                }
+            });
+        }
+
+        loadComments(); // load at page open
+
+        // Add New Comment
+        $("#submitComment").click(function() {
+            let name = $("#userName").val().trim();
+            let comment = $("#userComment").val().trim();
+
+            if (!name || !comment) {
+                alert("Please enter your name and comment");
+                return;
+            }
+
+            $.ajax({
+                url: "http://localhost:5000/add-comment",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    blog_id: blogid,
+                    name: name,
+                    comment: comment
+                }),
+                success: function() {
+                    $("#userName").val("");
+                    $("#userComment").val("");
+                    loadComments(); // reload comments
+                }
+            });
         });
+        });
+        
     </script>
 </body>
 </html>
